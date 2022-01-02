@@ -6,6 +6,7 @@
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/control_utils/control_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/selfie_segmentation.js" crossorigin="anonymous"></script>
+   <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
 </head>
 
 <style type="text/css">
@@ -15,13 +16,22 @@
     -webkit-transform:rotateY(180deg); /* Safari and Chrome */
     -moz-transform:rotateY(180deg); /* Firefox */
 }
+
+
 </style>
 <body>
-	<img id="scream" width="220" height="277" src="image.png" alt="The Scream" hidden>
+	
 
-  <div class="container">
-    <video class="input_video" id="videoElement"></video>
+  <div style="overflow: scroll;" class="container">
+    <video class="input_video" id="videoElement" hidden></video>
     <canvas class="output_canvas" width="1280px" height="720px"></canvas>
+    <img id="uploadImage" width="220" height="277"  alt="The Scream" hidden>
+
+        <label for="image_input" class="custom-file-upload">
+    Upload Screenshot of Code (Or any image really):
+</label>
+          <input type="file" id="image_input" accept="image/*">
+      <div id="display_image"></div>
   </div>
   <div class="control-panel">
 </body>
@@ -30,13 +40,27 @@
 const videoElement = document.getElementsByClassName('input_video')[0];
 const canvasElement = document.getElementsByClassName('output_canvas')[0];
 const canvasCtx = canvasElement.getContext('2d');
-const background = document.getElementById("scream");
+const background = document.getElementById("uploadImage");
 let i = 0
 let temp = 0
 let previousHorizontalPosition = 0
 let previousVerticalPosition = 0
 let keyPressedHorizonal = false
 let keyPressedVertical = false
+
+
+const image_input = document.querySelector("#image_input");
+image_input.addEventListener("change", function() {
+   const reader = new FileReader();
+   reader.addEventListener("load", () => {
+   const uploaded_image = reader.result;
+   console.log(uploaded_image)
+   background.src = uploaded_image
+   //document.querySelector("#display_image").style.backgroundImage = `url(${uploaded_image})`;
+});
+   reader.readAsDataURL(this.files[0]);
+});
+
 
 document.addEventListener("keydown", function(event) {
   console.log(event.which);
@@ -132,10 +156,11 @@ canvasElement.addEventListener('click', function() {
 
     canvasCtx.globalCompositeOperation = 'destination-atop';
     canvasCtx.drawImage(
-      scream, 0, 0, canvasElement.width, canvasElement.height);
+      background, 0, 0, canvasElement.width, canvasElement.height);
 
   canvasCtx.restore();
 }
+
 
 const selfieSegmentation = new SelfieSegmentation({locateFile: (file) => {
   return `https://cdn.jsdelivr.net/npm/@mediapipe/selfie_segmentation/${file}`;
@@ -148,9 +173,12 @@ selfieSegmentation.onResults(onResults);
 
 
 
+
+
 const camera = new Camera(videoElement, {
   onFrame: async () => {
     await selfieSegmentation.send({image: videoElement});
+    
   },
   width: 1280,
   height: 720
