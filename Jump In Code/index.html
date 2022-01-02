@@ -113,8 +113,9 @@ canvasElement.addEventListener('click', function() {
   canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
   let width = updateHorizontalPosition()
   let height = updateVerticalPosition()
+  //this handles the segmentation mask
   canvasCtx.drawImage(results.segmentationMask, width, height,
-                      canvasElement.width-500, canvasElement.height-500);
+                      canvasElement.width-600, canvasElement.height-500);
 
 
 
@@ -124,12 +125,14 @@ canvasElement.addEventListener('click', function() {
   canvasCtx.fillRect(0, 0, canvasElement.width, canvasElement.height);
 
   // Only overwrite missing pixels.
-  canvasCtx.globalCompositeOperation = 'destination-atop';
+
+  //this handles the actual image/stream
+  canvasCtx.drawImage(
+      results.image, width, height, canvasElement.width-600, canvasElement.height-500);
+
+    canvasCtx.globalCompositeOperation = 'destination-atop';
     canvasCtx.drawImage(
       scream, 0, 0, canvasElement.width, canvasElement.height);
-
-  canvasCtx.drawImage(
-      results.image, 0, 0, canvasElement.width, canvasElement.height);
 
   canvasCtx.restore();
 }
